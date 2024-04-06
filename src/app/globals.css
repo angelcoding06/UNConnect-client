@@ -1,27 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+/* Configuración global */
+html {
+  font-size: 16px; /* Tamaño base de fuente */
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: #f8f8f8; /* Cambia por el color de fondo deseado */
+}
+
+/* Asegura que todos los elementos utilicen el box-sizing border-box */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ajustes de los elementos principales */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none;
+
+}
+
+.appearance-none::-webkit-inner-spin-button,
+.appearance-none::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0; /* Ajusta el margen según sea necesario */
 }
