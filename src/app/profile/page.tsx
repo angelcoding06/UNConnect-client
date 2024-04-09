@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import Cookies from 'universal-cookie';
-import CreatePost from '../prueba/page';
-
+import CreatePost from '../components/createpost';
+import MyPosts from '@/app/components/myposts';
+import Header from '../components/header';
 const cookies = new Cookies(null, { path: '/' });
 const GET_USER_PROFILE = gql`
 	query getUserByAuthId($token: String!) {
@@ -72,11 +73,14 @@ const UPDATE_PROFILE = gql`
 const ProfilePage = () => {
 	const router = useRouter();
 	const token = cookies.get('token');
-	// console.log('Token: ', token);
+	if (!token) {
+		setTimeout(() => {
+			router.replace('/login');
+		}, 2000);
+	}
 	const { data, loading, error, refetch } = useQuery(GET_USER_PROFILE, {
 		variables: { token: token },
 	});
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [
 		updateProfile,
@@ -88,8 +92,7 @@ const ProfilePage = () => {
 	}
 	if (error) console.log('Error: ', error);
 	if (mutationError) console.log('mutationError: ', mutationError);
-	// console.log("Mutation Data: ",mutationData);
-	const user = data.getOneUSer;
+	const user = data.getUserByAuthId;
 
 	const handleCancelEdit = () => {
 		setIsEditing(false);
@@ -105,7 +108,7 @@ const ProfilePage = () => {
 
 		try {
 			const response = await fetch(
-				`http://localhost:8000/upload-file/?token=${token}`, //Todo Add token
+				`http://localhost:8000/upload-file/?token=${token}`,
 				{
 					method: 'POST',
 					body: formData,
@@ -117,7 +120,7 @@ const ProfilePage = () => {
 			if (response.ok) {
 				if (user.ProfilePhoto != '') {
 					await fetch(
-						`http://localhost:8000/delete-file?file_id=${user.ProfilePhoto}&token=${token}`, //TODO Add token
+						`http://localhost:8000/delete-file?file_id=${user.ProfilePhoto}&token=${token}`,
 						{
 							method: 'DELETE',
 						}
@@ -182,46 +185,14 @@ const ProfilePage = () => {
 		setIsEditing(false);
 		refetch();
 	};
+
 	if (mutationLoading) {
 		return <div>Cargando mutacion...</div>;
 	}
-	const handleLogout = () => {
-		router.push('/login');
-	};
 
 	return (
 		<div className='container mx-auto mt-8 px-24'>
-			<header className='bg-gray-800 text-white p-4 flex justify-between items-center'>
-				<div>
-					<a href='/' className='text-lg font-bold'>
-						Inicio
-					</a>
-				</div>
-				<div className='relative'>
-					<button
-						className='text-lg font-bold focus:outline-none'
-						onClick={() => setIsMenuOpen(!isMenuOpen)}
-					>
-						Menú
-					</button>
-					{isMenuOpen && (
-						<div className='absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg'>
-							<button
-								className='text-black block w-full text-left px-4 py-2 hover:bg-gray-100'
-								onClick={() => router.push('/profile')}
-							>
-								Mi perfil
-							</button>
-							<button
-								className='text-black block w-full text-left px-4 py-2 hover:bg-gray-100'
-								onClick={handleLogout}
-							>
-								Cerrar sesión
-							</button>
-						</div>
-					)}
-				</div>
-			</header>
+			<Header />
 			<h1 className='text-3xl font-bold mb-4'>Perfil</h1>
 			<div className='grid grid-cols-3 md:grid-cols-2 gap-8'>
 				<div className='bg-white shadow-md p-4 rounded-lg '>
@@ -355,6 +326,7 @@ const ProfilePage = () => {
 			</div>
 			<h1 className='text-3xl font-bold mb-4'>Creación de publicaciones</h1>
 			<CreatePost />
+			<MyPosts token={token} />
 		</div>
 	);
 };
