@@ -1,48 +1,42 @@
 'use client';
 import React from 'react';
-import { gql, useQuery, useSuspenseQuery, useMutation } from '@apollo/client';
-// import { cookies } from 'next/headers' solo para server
-const GET_USERS = gql`
-	query {
-		getUsers {
-			ID
-			IDAuth
-			LastName
-		}
-	}
-`;
-const REGISTER = gql`
-	mutation CreateAuthUser($email: String!, $password: String!) {
-		createAuthUser(email: $email, password: $password, role: USUARIO_REGULAR) {
-			id
-			email
-			verified
-			role
+import { gql, useMutation } from '@apollo/client';
+import { useRouter } from 'next/navigation';
+import Cookies from 'universal-cookie';
+const cookies = new Cookies(null, { path: '/' });
+
+const LOGIN = gql`
+	mutation LoginAuthUser($email: String!, $password: String!) {
+		loginAuthUser(email: $email, password: $password) {
+			token
 		}
 	}
 `;
 const Login = () => {
-  // const cookieStore = cookies();
-	// console.log(cookieStore.getAll());
-	const [createAuthUser, { data, loading, error }] = useMutation(REGISTER);
-	console.log(data);
-	if (loading) return 'Submitting...';
+	const [createAuthUser, { data, loading, error }] = useMutation(LOGIN);
+	const router = useRouter();
+
+	const dataloaded = data;
+	console.log('DataLoaded: ', dataloaded?.loginAuthUser.token);
+	const token = dataloaded?.loginAuthUser.token;
+	if (token) {
+		cookies.set('token', token);
+		setTimeout(() => {
+			router.push('/profile');
+		}, 2000);
+	}
+
+	if (loading) console.log('Loading');
 	if (error) return <p>Error: {error.message}</p>;
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-
 		const formData = new FormData(event.currentTarget);
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
-
-		console.log('formData', email, password);
 		createAuthUser({ variables: { email: email, password: password } });
 	};
-
-
 	return (
-		
 		<div className='flex justify-center items-center h-screen bg-gray-100'>
 			<div className='bg-white shadow-md rounded-lg px-8 py-6 max-w-md w-full mx-4'>
 				<h2 className='text-center text-2xl font-bold mb-6'>Iniciar sesión</h2>
@@ -85,7 +79,6 @@ const Login = () => {
 					</button>
 				</form>
 			</div>
-			
 		</div>
 	);
 };
