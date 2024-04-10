@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
 const GET_MY_POSTS = gql`
@@ -16,7 +16,6 @@ const GET_MY_POSTS = gql`
 		}
 	}
 `;
-
 const DELETE_POST = gql`
 	mutation deletePost($token: String!, $PostId: String!) {
 		deletePost(token: $token, PostId: $PostId)
@@ -32,7 +31,7 @@ const UPDATE_POST = gql`
 	}
 `;
 
-const MyPosts = ({ token }) => {
+const MyPosts = ({ token }: { token: string }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState('');
 	const [page, setPage] = useState(1);
@@ -54,7 +53,7 @@ const MyPosts = ({ token }) => {
 				variables: { token, PostId: postIdToEdit, Content: editedContent },
 			});
 			fetchMore({
-				variables: { token, page: 1 },
+				variables: { token, page: page },
 			});
 			setIsEditModalOpen(false);
 		} catch (error) {
@@ -76,27 +75,6 @@ const MyPosts = ({ token }) => {
 		}
 	};
 
-	const handleLoadMore = () => {
-		if (page + 1 <= data.getMyPosts.totalPages) {
-			fetchMore({
-				variables: { token, page: page + 1 },
-				updateQuery: (prev, { fetchMoreResult }) => {
-					if (!fetchMoreResult) return prev;
-					return {
-						getMyPosts: {
-							...fetchMoreResult.getMyPosts,
-							items: [
-								...prev.getMyPosts.items,
-								...fetchMoreResult.getMyPosts.items,
-							],
-						},
-					};
-				},
-			});
-			setPage(page + 1);
-		}
-	};
-
 	return (
 		<div className='container mx-auto mt-8 px-24'>
 			<h2 className='text-xl font-semibold mb-4'>My Posts</h2>
@@ -106,7 +84,7 @@ const MyPosts = ({ token }) => {
 				<p>Error: {error.message}</p>
 			) : (
 				<div className='grid grid-cols-3 gap-4'>
-					{data.getMyPosts.items.map((post) => (
+					{data.getMyPosts.items.map((post:any) => (
 						<div key={post.Id} className='bg-white shadow-md rounded-lg'>
 							<div className='p-4'>
 								<div>
@@ -216,12 +194,21 @@ const MyPosts = ({ token }) => {
 					)}
 				</div>
 			)}
-			<button
-				onClick={handleLoadMore}
-				className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4'
-			>
-				Load More
-			</button>
+			{!loading && data.getMyPosts.totalPages > 1 ? (
+				<div className='flex justify-center mt-4'>
+					{Array.from({ length: data.getMyPosts.totalPages }, (_, index) => (
+						<button
+							key={index}
+							onClick={() => setPage(index + 1)}
+							className={`mx-1 px-3 py-1 rounded ${
+								page === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+							}`}
+						>
+							{index + 1}
+						</button>
+					))}
+				</div>
+			) : null}
 		</div>
 	);
 };
