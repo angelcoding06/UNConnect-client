@@ -68,7 +68,7 @@ const MyPosts = ({ token }: { token: string }) => {
 				variables: { token, PostId },
 			});
 			fetchMore({
-				variables: { token, page: 1 },
+				variables: { token, page: page },
 			});
 		} catch (error) {
 			console.error('Error deleting post:', error);
