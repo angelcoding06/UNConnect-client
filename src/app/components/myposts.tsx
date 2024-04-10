@@ -45,7 +45,7 @@ const MyPosts = ({ token }: { token: string }) => {
 	const { loading, error, data, fetchMore } = useQuery(GET_MY_POSTS, {
 		variables: { token, page },
 	});
-
+	console.log(data);
 
 	const handleEditPost = async () => {
 		try {
@@ -81,92 +81,95 @@ const MyPosts = ({ token }: { token: string }) => {
 			{loading ? (
 				<p>Loading...</p>
 			) : error ? (
-				<p>Error: {error.message}</p>
+				<p>Error: Parece que no tienes publicaciones</p>
 			) : (
 				<div className='grid grid-cols-3 gap-4'>
-					{data.getMyPosts.items.map((post:any) => (
-						<div key={post.Id} className='bg-white shadow-md rounded-lg'>
-							<div className='p-4'>
-								<div>
-									<p className='mb-2'>{post.Content.slice(0, 125)}</p>
-									{post.Content.length > 125 && !showFullText && (
-										<button
-											onClick={() => setShowFullText(true)}
-											className='text-blue-500 hover:underline focus:outline-none'
-										>
-											Ver más
-										</button>
-									)}
-									{showFullText || post.Content.length <= 125 ? (
-										<div>
-											<p>{post.Content.slice(125, -1)}</p>
-											{showFullText && post.Content.length >= 125 ? (
-												<button
-													onClick={() => setShowFullText(false)}
-													className='text-blue-500 hover:underline focus:outline-none'
-												>
-													Ver menos
-												</button>
-											) : null}
-										</div>
-									) : null}
+					{data.getMyPosts &&
+						data.getMyPosts.items &&
+						data.getMyPosts.items.length > 0 &&
+						data.getMyPosts.items.map((post: any) => (
+							<div key={post.Id} className='bg-white shadow-md rounded-lg'>
+								<div className='p-4'>
+									<div>
+										<p className='mb-2'>{post.Content.slice(0, 125)}</p>
+										{post.Content.length > 125 && !showFullText && (
+											<button
+												onClick={() => setShowFullText(true)}
+												className='text-blue-500 hover:underline focus:outline-none'
+											>
+												Ver más
+											</button>
+										)}
+										{showFullText || post.Content.length <= 125 ? (
+											<div>
+												<p>{post.Content.slice(125, -1)}</p>
+												{showFullText && post.Content.length >= 125 ? (
+													<button
+														onClick={() => setShowFullText(false)}
+														className='text-blue-500 hover:underline focus:outline-none'
+													>
+														Ver menos
+													</button>
+												) : null}
+											</div>
+										) : null}
+									</div>
+									<div className='grid grid-cols-2 gap-4'>
+										{post.Media.length > 0 &&
+											post.Media.map((mediaId: string) => (
+												<img
+													key={mediaId}
+													src={`http://localhost:8000/get-file?file_id=${mediaId}`}
+													alt='Media'
+													className='w-full rounded-lg cursor-pointer'
+													style={{
+														maxWidth: '200px',
+														maxHeight: '200px',
+														objectFit: 'cover',
+													}}
+													onClick={() => {
+														setSelectedImage(
+															`http://localhost:8000/get-file?file_id=${mediaId}`
+														);
+														setIsModalOpen(true);
+													}}
+												/>
+											))}
+										{isModalOpen && (
+											<div className='fixed inset-0 z-50 flex items-center justify-center'>
+												<div
+													className='fixed inset-0 bg-black opacity-20'
+													onClick={() => setIsModalOpen(false)}
+												></div>
+												<img
+													src={selectedImage}
+													alt='Selected Media'
+													className='max-w-screen-xl max-h-screen'
+												/>
+											</div>
+										)}
+									</div>
 								</div>
-								<div className='grid grid-cols-2 gap-4'>
-									{post.Media.length > 0 &&
-										post.Media.map((mediaId:string) => (
-											<img
-												key={mediaId}
-												src={`http://localhost:8000/get-file?file_id=${mediaId}`}
-												alt='Media'
-												className='w-full rounded-lg cursor-pointer'
-												style={{
-													maxWidth: '200px',
-													maxHeight: '200px',
-													objectFit: 'cover',
-												}}
-												onClick={() => {
-													setSelectedImage(
-														`http://localhost:8000/get-file?file_id=${mediaId}`
-													);
-													setIsModalOpen(true);
-												}}
-											/>
-										))}
-									{isModalOpen && (
-										<div className='fixed inset-0 z-50 flex items-center justify-center'>
-											<div
-												className='fixed inset-0 bg-black opacity-20'
-												onClick={() => setIsModalOpen(false)}
-											></div>
-											<img
-												src={selectedImage}
-												alt='Selected Media'
-												className='max-w-screen-xl max-h-screen'
-											/>
-										</div>
-									)}
+								<div className='flex justify-end p-4'>
+									<button
+										onClick={() => {
+											setEditedContent(post.Content);
+											setPostIdToEdit(post.Id);
+											setIsEditModalOpen(true);
+										}}
+										className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+									>
+										Edit
+									</button>
+									<button
+										onClick={() => handleDeletePost(post.Id)}
+										className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+									>
+										Delete
+									</button>
 								</div>
 							</div>
-							<div className='flex justify-end p-4'>
-								<button
-									onClick={() => {
-										setEditedContent(post.Content);
-										setPostIdToEdit(post.Id);
-										setIsEditModalOpen(true);
-									}}
-									className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-								>
-									Edit
-								</button>
-								<button
-									onClick={() => handleDeletePost(post.Id)}
-									className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
-								>
-									Delete
-								</button>
-							</div>
-						</div>
-					))}
+						))}
 					{isEditModalOpen && (
 						<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
 							<div className='bg-white p-8 rounded-lg w-96'>
@@ -194,7 +197,7 @@ const MyPosts = ({ token }: { token: string }) => {
 					)}
 				</div>
 			)}
-			{!loading && data.getMyPosts.totalPages > 1 ? (
+			{!loading && data && data.getMyPosts.totalPages > 1 ? (
 				<div className='flex justify-center mt-4'>
 					{Array.from({ length: data.getMyPosts.totalPages }, (_, index) => (
 						<button
