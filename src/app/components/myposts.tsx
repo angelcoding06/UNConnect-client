@@ -22,24 +22,52 @@ const DELETE_POST = gql`
 		deletePost(token: $token, PostId: $PostId)
 	}
 `;
+const UPDATE_POST = gql`
+	mutation updatePost($token: String!, $PostId: String!, $Content: String!) {
+		updatePost(token: $token, PostId: $PostId, Content: $Content) {
+			Id
+			Content
+			Media
+		}
+	}
+`;
 
 const MyPosts = ({ token }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState('');
 	const [page, setPage] = useState(1);
 	const [showFullText, setShowFullText] = useState(false);
+	
+	const [editedContent, setEditedContent] = useState('');
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+	const [postIdToEdit, setPostIdToEdit] = useState(null);
+	const [updatePostMutation] = useMutation(UPDATE_POST);
+	const [deletePostMutation] = useMutation(DELETE_POST);
 	const { loading, error, data, fetchMore } = useQuery(GET_MY_POSTS, {
 		variables: { token, page },
 	});
 
-	const [deletePostMutation] = useMutation(DELETE_POST);
 
-	const handleDeletePost = async (PostId) => {
+	const handleEditPost = async () => {
+		try {
+			await updatePostMutation({
+				variables: { token, PostId: postIdToEdit, Content: editedContent },
+			});
+			fetchMore({
+				variables: { token, page: 1 },
+			});
+			setIsEditModalOpen(false);
+		} catch (error) {
+			console.error('Error updating post:', error);
+		}
+	};
+
+
+	const handleDeletePost = async (PostId:string) => {
 		try {
 			await deletePostMutation({
 				variables: { token, PostId },
 			});
-			// updateHotReload(); // Actualiza HotReload después de eliminar el post
 			fetchMore({
 				variables: { token, page: 1 },
 			});
@@ -94,7 +122,7 @@ const MyPosts = ({ token }) => {
 									{showFullText || post.Content.length <= 125 ? (
 										<div>
 											<p>{post.Content.slice(125, -1)}</p>
-											{showFullText ? (
+											{showFullText && post.Content.length >= 125 ? (
 												<button
 													onClick={() => setShowFullText(false)}
 													className='text-blue-500 hover:underline focus:outline-none'
@@ -107,7 +135,7 @@ const MyPosts = ({ token }) => {
 								</div>
 								<div className='grid grid-cols-2 gap-4'>
 									{post.Media.length > 0 &&
-										post.Media.map((mediaId) => (
+										post.Media.map((mediaId:string) => (
 											<img
 												key={mediaId}
 												src={`http://localhost:8000/get-file?file_id=${mediaId}`}
@@ -143,6 +171,16 @@ const MyPosts = ({ token }) => {
 							</div>
 							<div className='flex justify-end p-4'>
 								<button
+									onClick={() => {
+										setEditedContent(post.Content);
+										setPostIdToEdit(post.Id);
+										setIsEditModalOpen(true);
+									}}
+									className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+								>
+									Edit
+								</button>
+								<button
 									onClick={() => handleDeletePost(post.Id)}
 									className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
 								>
@@ -151,6 +189,31 @@ const MyPosts = ({ token }) => {
 							</div>
 						</div>
 					))}
+					{isEditModalOpen && (
+						<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+							<div className='bg-white p-8 rounded-lg w-96'>
+								<textarea
+									value={editedContent}
+									onChange={(e) => setEditedContent(e.target.value)}
+									className='border p-2 mb-4 w-full h-40 resize-none'
+								/>
+								<div className='flex justify-end'>
+									<button
+										onClick={() => setIsEditModalOpen(false)}
+										className='bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2'
+									>
+										Cancel
+									</button>
+									<button
+										onClick={handleEditPost}
+										className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+									>
+										Confirm
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 			)}
 			<button
