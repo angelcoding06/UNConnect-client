@@ -326,7 +326,7 @@ const ProfilePage = () => {
 			</div>
 			<h1 className='text-3xl font-bold mb-4'>Creación de publicaciones</h1>
 			<CreatePost />
-			<MyPosts token={token} />
+			<MyPosts token={token}/>
 		</div>
 	);
 };
