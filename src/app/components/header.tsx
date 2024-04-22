@@ -31,7 +31,7 @@ export default function Header() {
 						<div className='absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg'>
 							<button
 								className='text-black block w-full text-left px-4 py-2 hover:bg-gray-100'
-								onClick={() => router.push('/profile')}
+								onClick={() => router.push('/mygroups')}
 							>
 								Mis Grupos
 							</button>
