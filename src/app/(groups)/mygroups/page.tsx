@@ -72,7 +72,7 @@ const MyGroupsPage = () => {
     if (data && data.getUserByAuthId && data.getUserByAuthId.myGroups) {
       // Convertir IDs de grupo a int
       
-      const groupIds = data.getUserByAuthId.myGroups.map(groupId => parseInt(groupId, 10));
+      const groupIds = data.getUserByAuthId.myGroups.map((groupId:any) => parseInt(groupId, 10));
       console.log(groupIds)
       setMyGroups(groupIds);
       

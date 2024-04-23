@@ -163,18 +163,19 @@ const CreateGroupPage = () => {
     const [myGroups, setMyGroups] = useState<string[]>([]);
     const [updateProfileMutation, { loading: updateLoading, error: updateError }] = useMutation(UPDATE_PROFILE);
     
-    if (usergloading) {
-      return <div>Cargando...</div>;
-    }
-    if (usergerror) console.log('Error: ', error);
-    if (mutationError) console.log('mutationError: ', mutationError);
-    const user = data.getUserByAuthId;
-
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
       if (personData && personData.PersonByAuthID) {
         setOwnerId(personData.PersonByAuthID.id ? parseInt(personData.PersonByAuthID.id, 10) : null);
       }
     }, [personData]);
+
+
+    if (usergloading) {
+      return <div>Cargando...</div>;
+    }
+    if (usergerror) console.log('Error: ', error);
+    if (mutationError) console.log('mutationError: ', mutationError);
 
     if (loading) {
       return <div>Cargando...</div>;
@@ -186,6 +187,11 @@ const CreateGroupPage = () => {
     if (updateError) {
       console.log('Error al actualizar perfil:', updateError);
     }
+
+    const user = data.getUserByAuthId;
+
+    
+    
     
 
 
@@ -318,6 +324,7 @@ const CreateGroupPage = () => {
                   <div>
                       {/* Previsualización de la foto */}
                       {previewUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={previewUrl} alt="Preview" className="mt-4 max-w-xs rounded-lg" />
                       )}
                   </div>

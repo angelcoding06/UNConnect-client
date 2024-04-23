@@ -69,8 +69,8 @@ const LikesComponent = ({
 				await updateLikeMutation({ variables: { token, postId, type } });
 				setInteractionType(type);
 			}
-		} catch (error) {
-			alert(error.message);
+		} catch (error : any) {
+			alert(error.message );
 		}
 	};
 

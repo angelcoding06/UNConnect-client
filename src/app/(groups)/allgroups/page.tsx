@@ -58,7 +58,7 @@ const AllGroupsPage = () => {
             Lista de Grupos
             </h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data.getGroups.groups.map(group => (
+                {data.getGroups.groups.map((group: any) => (
                 <GroupCard key={group.id} group={group} />
                 ))}
             </div>

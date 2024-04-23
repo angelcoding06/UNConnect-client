@@ -2,8 +2,10 @@
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import Cookies from 'universal-cookie';
+import {useRouter} from 'next/navigation'
 
 const cookies = new Cookies();
+
 
 const REGISTER = gql`
 	mutation CreateAuthUser($email: String!, $password: String!) {
@@ -24,6 +26,7 @@ const CREATE_PERSON_GROUP = gql`
   }
 `;
 const Register = () => {
+	const router = useRouter();
 	const [createAuthUser, { data, loading, error }] = useMutation(REGISTER);
 	const [createPersonGroup, { data: groupData, loading: groupLoading, error: groupError }] = useMutation(CREATE_PERSON_GROUP);
 	console.log("Data: ",data);
@@ -53,7 +56,8 @@ const Register = () => {
 				console.log('Persona_Grupo creado con éxito:', groupResult.data.createPersonGroup);
 			  }
 			}
-		  } catch (error) {
+			router.push('/login');
+		  } catch (error:any) {
 			console.error('Error:', error.message);
 		  }
 	};

@@ -2,20 +2,21 @@
 import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
-const GET_MY_POSTS = gql`
-	query getMyPosts($token: String!, $page: Int!) {
-		getMyPosts(token: $token, page: $page) {
-			currentPage
-			totalPages
-			totalCount
-			items {
-				Id
-				Content
-				Media
-			}
-		}
-	}
+
+const GET_GROUP_POSTS = gql`
+  query GetGroupPosts($page: Int!, $GroupId: String!) {
+    getGroupPosts(page: $page, GroupId: $GroupId) {
+	  totalPages
+      items {
+        Id
+        Content
+		Media
+		
+      }
+    }
+  }
 `;
+
 const DELETE_POST = gql`
 	mutation deletePost($token: String!, $PostId: String!) {
 		deletePost(token: $token, PostId: $PostId)
@@ -31,21 +32,23 @@ const UPDATE_POST = gql`
 	}
 `;
 
-const MyPosts = ({ token }: { token: string }) => {
+const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undefined,  }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState('');
 	const [page, setPage] = useState(1);
 	const [showFullText, setShowFullText] = useState(false);
+	const GroupId = groupId;
 	
 	const [editedContent, setEditedContent] = useState('');
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [postIdToEdit, setPostIdToEdit] = useState(null);
 	const [updatePostMutation] = useMutation(UPDATE_POST);
 	const [deletePostMutation] = useMutation(DELETE_POST);
-	const { loading, error, data, fetchMore } = useQuery(GET_MY_POSTS, {
-		variables: { token, page },
-	});
+	const { data, loading, error, fetchMore } = useQuery(GET_GROUP_POSTS, {
+		variables: { page, GroupId },
+	  });
 	console.log(data);
+	
 
 	const handleEditPost = async () => {
 		try {
@@ -75,19 +78,23 @@ const MyPosts = ({ token }: { token: string }) => {
 		}
 	};
 
+	if (error) return <p>Error: {error.message}</p>;
+
+	
+
 	return (
 		<div className='container mx-auto mt-8 px-24'>
 			<h2 className='text-xl font-semibold mb-4'>My Posts</h2>
 			{loading ? (
 				<p>Loading...</p>
 			) : error ? (
-				<p>Error: Parece que no tienes publicaciones</p>
+				<p>Error: Parece que no tienes </p>
 			) : (
 				<div className='grid grid-cols-3 gap-4'>
-					{data.getMyPosts &&
-						data.getMyPosts.items &&
-						data.getMyPosts.items.length > 0 &&
-						data.getMyPosts.items.map((post: any) => (
+					{data.getGroupPosts &&
+						data.getGroupPosts.items &&
+						data.getGroupPosts.items.length > 0 &&
+						data.getGroupPosts.items.map((post: any) => (
 							<div key={post.Id} className='bg-white shadow-md rounded-lg'>
 								<div className='p-4'>
 									<div>
@@ -199,9 +206,9 @@ const MyPosts = ({ token }: { token: string }) => {
 					)}
 				</div>
 			)}
-			{!loading && data && data.getMyPosts.totalPages > 1 ? (
+			{!loading && data && data.getGroupPosts.totalPages >= 1 ? (
 				<div className='flex justify-center mt-4'>
-					{Array.from({ length: data.getMyPosts.totalPages }, (_, index) => (
+					{Array.from({ length: data.getGroupPosts.totalPages }, (_, index) => (
 						<button
 							key={index}
 							onClick={() => setPage(index + 1)}
@@ -218,4 +225,4 @@ const MyPosts = ({ token }: { token: string }) => {
 	);
 };
 
-export default MyPosts;
+export default GroupPosts;
