@@ -1,8 +1,21 @@
 version: '3.9'
 services:
+  unconnect_wa_rp:
+    container_name: unconnect_wa_rp
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./cert.pem:/etc/nginx/cert.pem
+      - ./key.pem:/etc/nginx/key.pem
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - backend-network
+    depends_on:
+      - unconnect_wa
   unconnect_wa:
-    container_name: 
-      unconnect_wa
+    container_name: unconnect_wa
     build:
       context: .
       dockerfile: Dockerfile
