@@ -24,47 +24,46 @@ const CreatePost = () => {
 	const [content, setContent] = useState('');
 	const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
-
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-	let ids: string[] = [];
-	if (mediaFiles.length > 0) {
-		const formData = new FormData();
-		for (let i = 0; i < mediaFiles.length; i++) {
-			formData.append('files', mediaFiles[i]);
+		let ids: string[] = [];
+		if (mediaFiles.length > 0) {
+			const formData = new FormData();
+			for (let i = 0; i < mediaFiles.length; i++) {
+				formData.append('files', mediaFiles[i]);
+			}
+
+			try {
+				const response = await fetch(
+					`http://localhost:81/upload-file/?token=${Token}`,
+					{
+						method: 'POST',
+						body: formData,
+					}
+				);
+				const data = await response.json();
+				console.log('Response:', data);
+
+				if (response.ok) {
+					ids = data.ids;
+				} else {
+					console.error('Error uploading file:', data.message);
+				}
+			} catch (error) {
+				console.error('Error uploading file:', error);
+			}
 		}
 
 		try {
-			const response = await fetch(
-				`http://localhost:8000/upload-file/?token=${Token}`,
-				{
-					method: 'POST',
-					body: formData,
-				}
-			);
-			const data = await response.json();
-			console.log('Response:', data);
+			await createPostMutation({
+				variables: { token: Token, Content: content, Media: ids },
+			});
 
-			if (response.ok) {
-				ids = data.ids;
-			} else {
-				console.error('Error uploading file:', data.message);
-			}
+			setContent('');
+			setMediaFiles([]);
 		} catch (error) {
-			console.error('Error uploading file:', error);
-		}
-	}
-
-	try {
-		await createPostMutation({
-			variables: { token: Token, Content: content, Media: ids },
-		});
-
-		setContent('');
-		setMediaFiles([]);
-	} catch (error) {
-		console.error('Error creating post:', error);
+			console.error('Error creating post:', error);
 		}
 	};
 

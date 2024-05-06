@@ -2,19 +2,17 @@
 import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
-
 const GET_GROUP_POSTS = gql`
-  query GetGroupPosts($page: Int!, $GroupId: String!) {
-    getGroupPosts(page: $page, GroupId: $GroupId) {
-	  totalPages
-      items {
-        Id
-        Content
-		Media
-		
-      }
-    }
-  }
+	query GetGroupPosts($page: Int!, $GroupId: String!) {
+		getGroupPosts(page: $page, GroupId: $GroupId) {
+			totalPages
+			items {
+				Id
+				Content
+				Media
+			}
+		}
+	}
 `;
 
 const DELETE_POST = gql`
@@ -32,13 +30,19 @@ const UPDATE_POST = gql`
 	}
 `;
 
-const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undefined,  }) => {
+const GroupPosts = ({
+	token,
+	groupId,
+}: {
+	token: string;
+	groupId: string | undefined;
+}) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState('');
 	const [page, setPage] = useState(1);
 	const [showFullText, setShowFullText] = useState(false);
 	const GroupId = groupId;
-	
+
 	const [editedContent, setEditedContent] = useState('');
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [postIdToEdit, setPostIdToEdit] = useState(null);
@@ -46,9 +50,8 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 	const [deletePostMutation] = useMutation(DELETE_POST);
 	const { data, loading, error, fetchMore } = useQuery(GET_GROUP_POSTS, {
 		variables: { page, GroupId },
-	  });
+	});
 	console.log(data);
-	
 
 	const handleEditPost = async () => {
 		try {
@@ -64,8 +67,7 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 		}
 	};
 
-
-	const handleDeletePost = async (PostId:string) => {
+	const handleDeletePost = async (PostId: string) => {
 		try {
 			await deletePostMutation({
 				variables: { token, PostId },
@@ -79,8 +81,6 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 	};
 
 	if (error) return <p>Error: {error.message}</p>;
-
-	
 
 	return (
 		<div className='container mx-auto mt-8 px-24'>
@@ -126,7 +126,7 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 											post.Media.map((mediaId: string) => (
 												<img
 													key={mediaId}
-													src={`http://localhost:8000/get-file?file_id=${mediaId}`}
+													src={`http://localhost:81/get-file?file_id=${mediaId}`}
 													alt='Media'
 													className='w-full rounded-lg cursor-pointer'
 													style={{
@@ -136,7 +136,7 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 													}}
 													onClick={() => {
 														setSelectedImage(
-															`http://localhost:8000/get-file?file_id=${mediaId}`
+															`http://localhost:81/get-file?file_id=${mediaId}`
 														);
 														setIsModalOpen(true);
 													}}
@@ -181,8 +181,8 @@ const GroupPosts = ({ token, groupId }: { token: string , groupId:string | undef
 						<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
 							<div className='bg-white p-8 rounded-lg w-96'>
 								<textarea
-									placeholder="Editar contenido del post"
-									title="Ingrese el nuevo contenido del post"
+									placeholder='Editar contenido del post'
+									title='Ingrese el nuevo contenido del post'
 									value={editedContent}
 									onChange={(e) => setEditedContent(e.target.value)}
 									className='border p-2 mb-4 w-full h-40 resize-none'

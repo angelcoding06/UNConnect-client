@@ -25,7 +25,7 @@ services:
       - "3005:3000"
     command: ["npm", "start"]
     environment:
-      API_GATEWAY_URL: http://unconnect_ag:8000
+      API_GATEWAY_URL: http://unconnect_ag_rp:81
 networks:
   backend-network:
     driver: bridge

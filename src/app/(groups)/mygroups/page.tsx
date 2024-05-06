@@ -28,86 +28,92 @@ const GET_USER_PROFILE = gql`
 `;
 
 const GET_GROUP_BY_ID = gql`
-  query GetGroup($groupId: Int!) {
-    getGroup(groupId: $groupId) {
-      id
-        name
-        photo
-        description
-        isPrivate
-        ownerId
-        inRequests
-        members
-        admins
-    }
-  }
+	query GetGroup($groupId: Int!) {
+		getGroup(groupId: $groupId) {
+			id
+			name
+			photo
+			description
+			isPrivate
+			ownerId
+			inRequests
+			members
+			admins
+		}
+	}
 `;
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8000/graphql',
-  cache: new InMemoryCache(),
+	uri: 'http://localhost:81/graphql',
+	cache: new InMemoryCache(),
 });
 
-
-
-
 const MyGroupsPage = () => {
-  const router = useRouter();
-  const token = cookies.get('token');
-  
-  if (!token) {
-    setTimeout(() => {
-      router.replace('/login');
-    }, 2000);
-  }
+	const router = useRouter();
+	const token = cookies.get('token');
 
-  const { data, loading: usergloading, error: usergerror, refetch } = useQuery(GET_USER_PROFILE, {
-    variables: { token: token },
-  });
+	if (!token) {
+		setTimeout(() => {
+			router.replace('/login');
+		}, 2000);
+	}
 
-  const [myGroups, setMyGroups] = useState<number[]>([]); // Cambiado a number[] para IDs de tipo int
-  const [groupsData, setGroupsData] = useState<any[]>([]);
+	const {
+		data,
+		loading: usergloading,
+		error: usergerror,
+		refetch,
+	} = useQuery(GET_USER_PROFILE, {
+		variables: { token: token },
+	});
 
-  useEffect(() => {
-    if (data && data.getUserByAuthId && data.getUserByAuthId.myGroups) {
-      // Convertir IDs de grupo a int
-      
-      const groupIds = data.getUserByAuthId.myGroups.map((groupId:any) => parseInt(groupId, 10));
-      console.log(groupIds)
-      setMyGroups(groupIds);
-      
-      const fetchGroups = async () => {
-        const groupsPromises = groupIds.map((groupId: number) => {
-          return client.query({
-            query: GET_GROUP_BY_ID ,
-            variables: { groupId: groupId },
-          });
-        });
+	const [myGroups, setMyGroups] = useState<number[]>([]); // Cambiado a number[] para IDs de tipo int
+	const [groupsData, setGroupsData] = useState<any[]>([]);
 
-        const groupsDataResult = await Promise.all(groupsPromises);
-        setGroupsData(groupsDataResult.map(result => result.data.getGroup));
-      };
+	useEffect(() => {
+		if (data && data.getUserByAuthId && data.getUserByAuthId.myGroups) {
+			// Convertir IDs de grupo a int
 
-      fetchGroups();
-    }
-  }, [data]);
+			const groupIds = data.getUserByAuthId.myGroups.map((groupId: any) =>
+				parseInt(groupId, 10)
+			);
+			console.log(groupIds);
+			setMyGroups(groupIds);
 
-  if (usergloading) return <p>Cargando...</p>;
-  if (usergerror) return <p>Error: {usergerror.message}</p>;
+			const fetchGroups = async () => {
+				const groupsPromises = groupIds.map((groupId: number) => {
+					return client.query({
+						query: GET_GROUP_BY_ID,
+						variables: { groupId: groupId },
+					});
+				});
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <header><Header /></header>
-      <h1 className="text-4xl font-extrabold text-center text-black mb-8">
-        Tus Grupos
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {groupsData.map(group => (
-          <GroupCard key={group.id} group={group} />
-        ))}
-      </div>
-    </div>
-  );
+				const groupsDataResult = await Promise.all(groupsPromises);
+				setGroupsData(groupsDataResult.map((result) => result.data.getGroup));
+			};
+
+			fetchGroups();
+		}
+	}, [data]);
+
+	if (usergloading) return <p>Cargando...</p>;
+	if (usergerror) return <p>Error: {usergerror.message}</p>;
+
+	return (
+		<div className='container mx-auto px-4 py-8'>
+			<header>
+				<Header />
+			</header>
+			<h1 className='text-4xl font-extrabold text-center text-black mb-8'>
+				Tus Grupos
+			</h1>
+			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+				{groupsData.map((group) => (
+					<GroupCard key={group.id} group={group} />
+				))}
+			</div>
+		</div>
+	);
 };
 
 export default MyGroupsPage;

@@ -36,7 +36,7 @@ const MyPosts = ({ token }: { token: string }) => {
 	const [selectedImage, setSelectedImage] = useState('');
 	const [page, setPage] = useState(1);
 	const [showFullText, setShowFullText] = useState(false);
-	
+
 	const [editedContent, setEditedContent] = useState('');
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [postIdToEdit, setPostIdToEdit] = useState(null);
@@ -61,8 +61,7 @@ const MyPosts = ({ token }: { token: string }) => {
 		}
 	};
 
-
-	const handleDeletePost = async (PostId:string) => {
+	const handleDeletePost = async (PostId: string) => {
 		try {
 			await deletePostMutation({
 				variables: { token, PostId },
@@ -119,7 +118,7 @@ const MyPosts = ({ token }: { token: string }) => {
 											post.Media.map((mediaId: string) => (
 												<img
 													key={mediaId}
-													src={`http://localhost:8000/get-file?file_id=${mediaId}`}
+													src={`http://localhost:81/get-file?file_id=${mediaId}`}
 													alt='Media'
 													className='w-full rounded-lg cursor-pointer'
 													style={{
@@ -129,7 +128,7 @@ const MyPosts = ({ token }: { token: string }) => {
 													}}
 													onClick={() => {
 														setSelectedImage(
-															`http://localhost:8000/get-file?file_id=${mediaId}`
+															`http://localhost:81/get-file?file_id=${mediaId}`
 														);
 														setIsModalOpen(true);
 													}}
@@ -174,8 +173,8 @@ const MyPosts = ({ token }: { token: string }) => {
 						<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
 							<div className='bg-white p-8 rounded-lg w-96'>
 								<textarea
-									placeholder="Editar contenido del post"
-									title="Ingrese el nuevo contenido del post"
+									placeholder='Editar contenido del post'
+									title='Ingrese el nuevo contenido del post'
 									value={editedContent}
 									onChange={(e) => setEditedContent(e.target.value)}
 									className='border p-2 mb-4 w-full h-40 resize-none'

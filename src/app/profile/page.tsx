@@ -108,7 +108,7 @@ const ProfilePage = () => {
 
 		try {
 			const response = await fetch(
-				`http://localhost:8000/upload-file/?token=${token}`,
+				`http://localhost:81/upload-file/?token=${token}`,
 				{
 					method: 'POST',
 					body: formData,
@@ -120,7 +120,7 @@ const ProfilePage = () => {
 			if (response.ok) {
 				if (user.ProfilePhoto != '') {
 					await fetch(
-						`http://localhost:8000/delete-file?file_id=${user.ProfilePhoto}&token=${token}`,
+						`http://localhost:81/delete-file?file_id=${user.ProfilePhoto}&token=${token}`,
 						{
 							method: 'DELETE',
 						}
@@ -317,7 +317,7 @@ const ProfilePage = () => {
 				<div className='bg-white shadow-md p-4 rounded-lg'>
 					<h2 className='text-xl font-bold mb-2'>Foto de perfil</h2>
 					<img
-						src={`http://localhost:8000/get-file?file_id=${user.ProfilePhoto}`}
+						src={`http://localhost:81/get-file?file_id=${user.ProfilePhoto}`}
 						alt='Foto de perfil'
 						className='rounded-lg max-w-80'
 					/>
@@ -326,7 +326,7 @@ const ProfilePage = () => {
 			</div>
 			<h1 className='text-3xl font-bold mb-4'>Creación de publicaciones</h1>
 			<CreatePost />
-			<MyPosts token={token}/>
+			<MyPosts token={token} />
 		</div>
 	);
 };
